@@ -1,0 +1,52 @@
+<div class="list-group" id="events-list">
+    <a href="#" id="event-loading" class="list-group-item disabled">Загружаемся...</a>
+</div>
+
+<script>
+
+var gGameId = "<%= @game_id %>";
+
+var gStartItem = 0;
+var gLen = 50;
+
+function loadMore() {
+    
+    var url="/events_j?game_id="+ gGameId + "&from=" + gStartItem + "&count=" + gLen;
+    $.getJSON( url,
+        function(data) {
+            var items = [];
+            $.each(data, function(key, val) {
+                items.push("<div class=\"list-group-item\">" + val["title"] + "</div>");
+            });
+
+            gStartItem += items.length;
+
+            var loader = $("#event-loading");
+
+            if (items.length == gLen) {
+                items.push(loader);
+            }
+
+            loader.remove();
+
+            for (var i = 0; i < items.length; i++) {
+                $("#events-list").append(items[i]);
+            }
+
+
+        });
+
+}
+
+var waypoint = new Waypoint({
+    element: document.getElementById('event-loading'),
+    handler: function(direction) {
+        if (direction == "down") {
+            loadMore();
+        }
+    },
+    offset: 'bottom-in-view'
+});
+
+</script>
+

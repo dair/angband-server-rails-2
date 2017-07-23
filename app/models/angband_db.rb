@@ -68,9 +68,8 @@ class AngbandDb < ActiveRecord::Base
                                       e.updater = up.id
                                 order by cr_date desc
 
-                                limit #{qty + 1}
+                                limit #{qty}
                                 offset #{from}"])
-        puts query
 
         rows = connection.select_all(query)
         ret = {}

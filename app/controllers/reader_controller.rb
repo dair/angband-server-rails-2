@@ -36,7 +36,12 @@ class ReaderController < ApplicationController
 
     def events
         id = params[:id]
+        @game_id = id
         @game_name = AngbandDb.getGameName(id)
+        unless @game_name
+            redirect_to '/'
+            return
+        end
 
         @id = id
     end

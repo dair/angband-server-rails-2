@@ -56,4 +56,4 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'jquery-rails', '~> 4.3.0'
 gem 'bootstrap-sass', '~> 3.3.0'
 gem 'autoprefixer-rails'
-
+gem 'waypoints_rails'
