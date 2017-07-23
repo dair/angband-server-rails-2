@@ -5,6 +5,9 @@ Rails.application.routes.draw do
     
     post "application/login"
 
-    get "/:id" => "reader#game"
+    get "events_j" => "reader#events_j"
+    
+    
+    get "/:id" => "reader#events"
 
 end

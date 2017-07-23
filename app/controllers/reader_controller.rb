@@ -34,12 +34,28 @@ class ReaderController < ApplicationController
 
     end
 
-    def game
+    def events
         id = params[:id]
         @game_name = AngbandDb.getGameName(id)
 
         @id = id
     end
+
+    
+    def events_j
+        game_id = params[:game_id]
+        from = params[:from].to_i
+        count = params[:count].to_i
+
+        events = {}
+        if game_id != nil and from != nil and count != nil
+            events = AngbandDb.getEventList(game_id, from, count)
+        end
+
+        render :json => events
+
+    end
+
 
 end
 
