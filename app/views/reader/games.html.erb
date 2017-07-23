@@ -1,0 +1,5 @@
+<div class="list-group">
+    <% @games.each do |id, name| %>
+        <%= link_to name, "/" + id, :class => "list-group-item" %>
+    <% end %>
+</div>
