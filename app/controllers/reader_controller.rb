@@ -42,8 +42,6 @@ class ReaderController < ApplicationController
             redirect_to '/'
             return
         end
-
-        @id = id
     end
 
     
@@ -61,6 +59,48 @@ class ReaderController < ApplicationController
 
     end
 
+    def objects
+        id = params[:id]
+        @game_id = id
+        @game_name = AngbandDb.getGameName(id)
+        
+        unless @game_name
+            redirect_to '/'
+            return
+        end
+    end
 
+    def objects_j
+        game_id = params[:game_id]
+        
+        objects = {}
+        if game_id != nil #and from != nil and count != nil
+            objects = AngbandDb.getObjectsList(game_id)
+        end
+
+        render :json => objects
+    end
+
+    def locations
+        id = params[:id]
+        @game_id = id
+        @game_name = AngbandDb.getGameName(id)
+        
+        unless @game_name
+            redirect_to '/'
+            return
+        end
+    end
+
+    def locations_j
+        game_id = params[:game_id]
+        
+        locations = {}
+        if game_id != nil #and from != nil and count != nil
+            locations = AngbandDb.getLocationsList(game_id)
+        end
+
+        render :json => locations
+    end
 end
 

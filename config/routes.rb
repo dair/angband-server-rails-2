@@ -6,8 +6,11 @@ Rails.application.routes.draw do
     post "application/login"
 
     get "events_j" => "reader#events_j"
-    
+    get "objects_j" => "reader#objects_j"
+    get "locations_j" => "reader#locations_j"
     
     get "/:id" => "reader#events"
+    get "/:id/objects" => "reader#objects"
+    get "/:id/locations" => "reader#locations"
 
 end

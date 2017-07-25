@@ -80,5 +80,31 @@ class AngbandDb < ActiveRecord::Base
         return ret
     end
 
+    def self.getObjectsList(game_id)
+        query = "select id, name from #{game_id}_object"
+
+        rows = connection.select_all(query)
+        ret = {}
+
+        rows.to_hash.each do |row|
+            ret[row["id"]] = row
+        end
+
+        return ret
+    end
+
+    def self.getLocationsList(game_id)
+        query = "select id, name from #{game_id}_location"
+
+        rows = connection.select_all(query)
+        ret = {}
+
+        rows.to_hash.each do |row|
+            ret[row["id"]] = row
+        end
+
+        return ret
+    end
+
 end
 

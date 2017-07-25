@@ -15,9 +15,9 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <% if @game_name %>
                 <ul class="nav navbar-nav">
-                    <li><a href="#">События</a></li>
-                    <li><a href="#">Объекты</a></li>
-                    <li><a href="#">Локации</a></li>
+                    <li><a href="<%= "/" + @game_id %>">События</a></li>
+                    <li><a href="<%= "/" + @game_id + "/objects" %>">Объекты</a></li>
+                    <li><a href="<%= "/" + @game_id + "/locations " %>">Локации</a></li>
                 </ul>
             <% end %>
 
