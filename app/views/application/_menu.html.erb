@@ -21,9 +21,13 @@
                 </ul>
             <% end %>
 
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="#"><span class="glyphicon glyphicon-log-in"></span>&nbsp;Вход</a></li>
-            </ul>
+            <% unless flash[:login] %>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span>&nbsp;Вход</a></li>
+                </ul>
+            <% else %>
+                <% flash[:login] = false %>
+            <% end %>
         </div>
     </div>
 </nav>
