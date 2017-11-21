@@ -200,19 +200,6 @@ alter table EVENT_TAG add constraint EVENT_TAG__TAG_FK foreign key (tag_id)
     on delete cascade
     on update cascade;
 
--- HAPPINESS
-create table LOCATION_HAPPINESS (
-    location_id bigint not null,
-    happiness smallint not null default 0,
-    cr_date timestamp with time zone not null default now()
-);
-
-alter table LOCATION_HAPPINESS add constraint LOCATION_HAPPINESS_PK primary key (location_id, cr_date);
-alter table LOCATION_HAPPINESS add constraint LOCATION_HAPPINESS__LOCATION_FK foreign key (location_id)
-    references LOCATION (id)
-    on delete cascade
-    on update cascade;
-
 -- ALL_ROLE
 
 create table ALL_ROLE (
@@ -257,3 +244,4 @@ CREATE TABLE counter(
     count bigint not null default 0,
     constraint counter__pk primary key (url)
 );
+

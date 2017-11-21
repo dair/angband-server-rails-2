@@ -32,6 +32,7 @@ class ReaderController < ApplicationController
         
         @games = AngbandDb.getGameList()
 
+        @title = "Игры"
     end
 
     def events
@@ -42,6 +43,8 @@ class ReaderController < ApplicationController
             redirect_to '/'
             return
         end
+
+        @title = @game_name + ": События"
     end
 
     
@@ -68,6 +71,8 @@ class ReaderController < ApplicationController
             redirect_to '/'
             return
         end
+        
+        @title = @game_name + ": Объекты"
     end
 
     def objects_j
@@ -90,6 +95,8 @@ class ReaderController < ApplicationController
             redirect_to '/'
             return
         end
+        
+        @title = @game_name + ": Локации"
     end
 
     def locations_j

@@ -106,5 +106,29 @@ class AngbandDb < ActiveRecord::Base
         return ret
     end
 
+    def self.getUserPassword(user)
+        query = sanitize_sql(["select password from operator where id = ?", user])
+
+        rows = connection.select_all(query)
+
+        if rows.length != 1
+            return nil
+        else
+            return rows.first["password"]
+        end
+    end
+
+    def self.getUserName(user)
+        query = sanitize_sql(["select name from operator where id = ?", user])
+
+        rows = connection.select_all(query)
+
+        if rows.length != 1
+            return nil
+        else
+            return rows.first["name"]
+        end
+
+    end
 end
 

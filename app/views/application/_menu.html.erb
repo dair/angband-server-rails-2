@@ -8,8 +8,8 @@
             </button>
             <% if @game_name %>
                 <div class="navbar-brand"><a href="/">БИЦ</a>:&nbsp;<%= @game_name %></div>
-            <% else %>
-                <a class="navbar-brand" href="/">БИЦ</a>
+            <% elsif @title %>
+                <div class="navbar-brand"><a href="/">БИЦ</a>:&nbsp;<%= @title %></div>
             <% end %>
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
@@ -21,13 +21,20 @@
                 </ul>
             <% end %>
 
-            <% unless flash[:login] %>
+            <% if session[:user] %>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span>&nbsp;Вход</a></li>
+                    <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span>&nbsp;<%= session[:user]["name"] %></a></li>
                 </ul>
             <% else %>
-                <% flash[:login] = false %>
+                <% unless flash[:login] %>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span>&nbsp;Вход</a></li>
+                    </ul>
+                <% else %>
+                    <% flash[:login] = false %>
+                <% end %>
             <% end %>
         </div>
     </div>
 </nav>
+

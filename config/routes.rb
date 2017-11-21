@@ -4,6 +4,7 @@ Rails.application.routes.draw do
     root to: 'reader#games'
 
     get "login" => "application#login"
+    get "logout" => "application#logout"
     post "do_login" => "application#do_login"
 
     get "events_j" => "reader#events_j"

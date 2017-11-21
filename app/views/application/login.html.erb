@@ -2,9 +2,11 @@
     function formSubmit()
     {
         var n = $('input:text[id="inputLogin"]').val();
+        var s = $('input:hidden[id="sessionId"]').val();
         var p = $('input:password[id="inputPassword"]').val();
 
-        var hash = CryptoJS.SHA3(p + ':' + n);
+        var shaPass = CryptoJS.SHA3(p);
+        var hash = CryptoJS.SHA3(s + ':' + shaPass);
 
         $('input:hidden[name="hash"]').val(hash);
         $('input:hidden[name="login"]').val(n);
@@ -18,9 +20,13 @@
 
 <div class="col-2">
     <form class="form-signin" onsubmit="return formSubmit();">
+        <% if flash[:fail] %>
+            <font color=red>Неправильное сочетание имени и пароля</font>
+        <% end %>
         <h2 class="form-signin-heading">Вход</h2>
         <input type="text" id="inputLogin" class="form-control" placeholder="Имя" required autofocus>
         <input type="password" id="inputPassword" class="form-control" placeholder="Пароль" required>
+        <%= hidden_field_tag 'sessionId', session.id %>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
     </form>
 
@@ -29,3 +35,4 @@
         <%= hidden_field_tag 'login' %>
     <% end %>
 </div> <!-- /container -->
+
