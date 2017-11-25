@@ -1,3 +1,13 @@
+<%
+    def anchor(url, text)
+        if request.path != url
+            return '<a href="' + url + '">' + text + "</a>"
+        else
+            return '<p class="navbar-text">' + text + '</p>'
+        end
+    end
+
+%>
 <nav class="navbar navbar-default">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -15,9 +25,9 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <% if @game_name %>
                 <ul class="nav navbar-nav">
-                    <li><a href="<%= "/" + @game_id %>">События</a></li>
-                    <li><a href="<%= "/" + @game_id + "/objects" %>">Объекты</a></li>
-                    <li><a href="<%= "/" + @game_id + "/locations " %>">Локации</a></li>
+                    <li><%== anchor("/" + @game_id, "События") %></li>
+                    <li><%== anchor("/" + @game_id + "/objects", "Объекты") %></li>
+                    <li><%== anchor("/" + @game_id + "/locations", "Локации") %></li>
                 </ul>
             <% end %>
 
