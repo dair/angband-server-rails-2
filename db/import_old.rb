@@ -80,7 +80,10 @@ begin
             if c[0]["count"].to_i == 0
                 puts 'Adding new operator `' + o["id"] + '` ("' + o["name"] + '")' if options[:verbose]
                 q = %{insert into operator (id, name, password) values ($1, $2, $3)}
-                connectionTo.exec(q, [o["id"], o["name"], o["password"]])
+                connectionTo.exec(q, [o["id"], o["name"], ''])
+
+                q = %{insert into operator_role (id, status) values ($1, 'R')}
+                connectionTo.exec(q, [o["id"]])
             else
                 puts 'Skip adding operator `' + o["id"] + '` because one exists already`' if options[:verbose]
                 # такой оператор уже есть; ничего не делаем
@@ -128,8 +131,8 @@ begin
         end
 
         # fill tags
-
         rows = connectionFrom.exec(%{select id, name, status from tag})
+        puts 'Got ' + rows.count.to_s + ' values from TAG'
         q = %{insert into #{toTagName} (id, name, status) values ($1, $2, $3)} 
         connectionTo.prepare('tag_insert', q)
         puts q if options[:verbose]
@@ -207,6 +210,102 @@ begin
             end
         end
 
+        # objects
+        toObjectName = options[:prefix] + "_object"
+        query = [
+            %{drop table if exists #{toObjectName} cascade},
+            %{create table #{toObjectName} (id bigint not null, name varchar(255) not null, description text, status char(1) not null, creator character varying (255) default null, cr_date timestamp with time zone not null default now(), updater character varying (255) default null, up_date timestamp with time zone not null default now())},
+            %{create sequence #{toObjectName}_SEQ owned by #{toObjectName}.id},
+            %{alter table #{toObjectName} alter id set default nextval('#{toObjectName}_SEQ')},
+            %{alter table #{toObjectName} add constraint #{toObjectName}_PK primary key (id)},
+            %{create index index_#{toObjectName}_name on #{toObjectName} (name)},
+            %{alter table #{toObjectName} add constraint #{toObjectName}_OPERATOR_CREATOR_FK foreign key (creator) references OPERATOR (id) on delete restrict on update cascade},
+            %{alter table #{toObjectName} add constraint #{toObjectName}_OPERATOR_UPDATER_FK foreign key (updater) references OPERATOR (id) on delete restrict on update cascade}
+        ]
+
+        for q in query
+            puts q if options[:verbose]
+            connectionTo.exec(q)
+        end
+
+        # fill objects
+        rows = connectionFrom.exec(%{select id, name, description, status, creator, cr_date, updater, up_date from object})
+        q = %{insert into #{toObjectName} (id, name, description, status, creator, cr_date, updater, up_date) values ($1, $2, $3, $4, $5, $6, $7, $8)} 
+        connectionTo.prepare('object_insert', q)
+        puts q if options[:verbose]
+        rows.each do |r|
+            arr = r.values
+            puts %{\t#{arr}} if options[:verbose]
+            connectionTo.exec_prepared('object_insert', arr)
+        end
+
+        # event_object
+        toEventObjectName = options[:prefix] + "_event_object"
+        query = [
+            %{drop table if exists #{toEventObjectName} cascade},
+            %{create table #{toEventObjectName} (event_id bigint not null, object_id bigint not null)},
+            %{alter table #{toEventObjectName} add constraint #{toEventObjectName}_PK primary key (event_id, object_id)},
+            %{alter table #{toEventObjectName} add constraint #{toEventObjectName}__EVENT_FK foreign key (event_id) references #{toEventName} (id) on delete cascade on update cascade},
+            %{alter table #{toEventObjectName} add constraint #{toEventObjectName}__OBJECT_FK foreign key (object_id) references #{toObjectName} (id) on delete cascade on update cascade},
+            %{create index INDEX_#{toEventObjectName}_EVENT on #{toEventObjectName} (event_id)},
+            %{create index INDEX_#{toEventObjectName}_OBJECT on #{toEventObjectName} (object_id)}
+        ]
+        
+        for q in query
+            puts q if options[:verbose]
+            connectionTo.exec(q)
+        end
+
+        # fill event_object
+        q = %{insert into #{toEventObjectName} (event_id, object_id) values
+            ($1, $2)}
+        connectionTo.prepare('event_object_insert', q)
+        connectionFrom.transaction do |connectionFrom|
+            connectionFrom.exec(%{declare event_object_cursor cursor for select event_id, object_id from EVENT_OBJECT})
+
+            while true
+                rows = connectionFrom.exec(%{fetch event_object_cursor})
+                break if rows.ntuples == 0
+                
+                rows.each do |row|
+                    row_a = row.values
+                    puts row if options[:verbose]
+                    connectionTo.exec_prepared('event_object_insert', row_a)
+                end
+            end
+        end
+
+        # event_tag
+        toEventTagName = options[:prefix] + "_event_tag"
+        query = [
+            %{drop table if exists #{toEventTagName} cascade},
+            %{create table #{toEventTagName} (event_id bigint not null, tag_id bigint not null)},
+            %{alter table #{toEventTagName} add constraint #{toEventTagName}_PK primary key (event_id, tag_id)},
+            %{alter table #{toEventTagName} add constraint #{toEventTagName}__EVENT_FK foreign key (event_id) references #{toEventName} (id) on delete cascade on update cascade},
+            %{alter table #{toEventTagName} add constraint #{toEventTagName}__TAG_FK foreign key (tag_id) references #{toTagName} (id) on delete cascade on update cascade},
+        ]
+        for q in query
+            puts q if options[:verbose]
+            connectionTo.exec(q)
+        end
+
+        # fill event_tag
+        q = %{insert into #{toEventTagName} (event_id, tag_id) values ($1, $2)}
+        connectionTo.prepare('event_tag_insert', q)
+        connectionFrom.transaction do |connectionFrom|
+            connectionFrom.exec(%{declare event_tag_cursor cursor for select event_id, tag_id from EVENT_TAG})
+
+            while true
+                rows = connectionFrom.exec(%{fetch event_tag_cursor})
+                break if rows.ntuples == 0
+                
+                rows.each do |row|
+                    row_a = row.values
+                    puts row if options[:verbose]
+                    connectionTo.exec_prepared('event_tag_insert', [row["event_id"].to_i, row["tag_id"].to_i])
+                end
+            end
+        end
     end
 rescue PG::Error => e
     puts e.message
